@@ -4,10 +4,15 @@ This repository is designed to run n8n for free on GitHub Codespaces or other fr
 
 ## 🎯 Which Platform Should You Choose?
 
-### For Scheduled Tasks & Webhooks (LinkedIn, Social Media, etc.) → **Railway** ✅
-- **Always running** - Perfect for scheduled posts and webhooks
-- **Persistent storage** - Your workflows stay active
-- **Free tier available** - $5 credit monthly
+### For Scheduled Tasks & Webhooks (LinkedIn, Social Media, etc.) → **Render** ✅ (100% Free)
+- **Free tier** - Completely free forever
+- **Auto-wake** - Wakes up when needed (may take 30-60 seconds)
+- **Persistent storage** - Your workflows stay saved
+- **Best for**: LinkedIn posting, scheduled workflows (with wake-up delay)
+
+### Alternative: **Fly.io** (100% Free)
+- **Always free** - No credit card required
+- **Always running** - No sleep mode
 - **Best for**: LinkedIn posting, scheduled workflows, webhooks
 
 ### For Development & Testing → **GitHub Codespaces**
@@ -15,27 +20,32 @@ This repository is designed to run n8n for free on GitHub Codespaces or other fr
 - **Stops when inactive** - Not suitable for scheduled tasks
 - **Best for**: Development, testing workflows
 
-## 🚀 Method 1: Railway (Recommended for LinkedIn/Scheduled Tasks)
+## 🚀 Method 1: Render (100% Free - Recommended)
 
-Railway is the best choice for LinkedIn posting because it stays running 24/7, ensuring your scheduled posts work reliably.
+Render offers a completely free tier that's perfect for n8n. The service may sleep after inactivity but wakes up automatically when accessed.
 
-### Railway Setup Steps:
-1. Go to [Railway.app](https://railway.app) and sign up
-2. Select "New Project"
-3. Choose "Deploy from GitHub repo"
-4. Select this repository
-5. Railway will automatically detect `docker-compose.yml`
-6. Your n8n instance will be available at a Railway-provided URL
-7. Set up your LinkedIn workflow in n8n!
+### Render Setup Steps:
+1. Go to [Render.com](https://render.com) and sign up (no credit card needed)
+2. Click "New +" → "Web Service"
+3. Connect your GitHub account and select this repository
+4. Render will automatically detect `render.yaml`
+5. Configure:
+   - **Name**: n8n (or any name you like)
+   - **Plan**: Free
+   - **Environment Variables**: Set `N8N_BASIC_AUTH_PASSWORD` to your desired password
+6. Click "Create Web Service"
+7. Wait for deployment (2-3 minutes)
+8. Your n8n instance will be available at `https://your-app.onrender.com`
 
-**Railway Benefits:**
-- ✅ Always running (perfect for scheduled LinkedIn posts)
-- ✅ Persistent data storage
-- ✅ Free $5 credit monthly
+**Render Benefits:**
+- ✅ 100% free forever
+- ✅ No credit card required
+- ✅ Auto-wakes when accessed
+- ✅ Persistent storage
 - ✅ Automatic HTTPS
-- ✅ Webhook support
+- ⚠️ May sleep after 15 minutes of inactivity (wakes in 30-60 seconds)
 
-## 🐳 Method 2: GitHub Codespaces (For Development/Testing)
+## 🐳 Method 3: GitHub Codespaces (For Development/Testing)
 
 GitHub Codespaces offers 60 free hours per month.
 
@@ -54,22 +64,48 @@ GitHub Codespaces offers 60 free hours per month.
 - URL: `http://localhost:5678`
 - Codespaces automatically creates a public URL for you
 
-## 🐳 Method 3: Other Free Services
+## 🚀 Method 2: Fly.io (100% Free - Always Running)
 
-### Render (Free with limitations):
-1. Go to [Render.com](https://render.com) and sign up
-2. Select "New +" and then "Web Service"
-3. Connect your GitHub repository
-4. Settings:
-   - **Build Command**: `echo "No build needed"`
-   - **Start Command**: `docker-compose up`
-   - **Docker Compose File**: `docker-compose.yml`
+Fly.io offers a free tier that stays running 24/7 - perfect for scheduled LinkedIn posts!
 
-### Fly.io (Free):
+### Fly.io Setup Steps:
 1. Go to [Fly.io](https://fly.io) and sign up
-2. Install CLI: `curl -L https://fly.io/install.sh | sh`
-3. Login: `fly auth login`
-4. Launch: `fly launch` (uses `docker-compose.yml`)
+2. Install CLI: 
+   ```bash
+   curl -L https://fly.io/install.sh | sh
+   ```
+3. Login:
+   ```bash
+   fly auth login
+   ```
+4. Deploy:
+   ```bash
+   cd ~/n8n-github
+   fly launch
+   ```
+5. Follow the prompts (use defaults)
+6. Set password:
+   ```bash
+   fly secrets set N8N_BASIC_AUTH_PASSWORD=your-password-here
+   ```
+7. Your n8n will be available at `https://your-app.fly.dev`
+
+**Fly.io Benefits:**
+- ✅ 100% free (3 shared VMs)
+- ✅ Always running (no sleep)
+- ✅ Perfect for scheduled tasks
+- ✅ Automatic HTTPS
+- ✅ Webhook support
+
+## 🐳 Method 4: Railway (Paid After First Month)
+
+⚠️ **Note:** Railway is no longer free after the first month. Use Render or Fly.io for free hosting.
+
+If you still want to use Railway:
+1. Go to [Railway.app](https://railway.app)
+2. Select "New Project" → "Deploy from GitHub repo"
+3. Select this repository
+4. Railway will use `railway.json` and `Dockerfile`
 
 ## ⚙️ Configuration
 
@@ -85,10 +121,15 @@ In `docker-compose.yml`, change `N8N_BASIC_AUTH_ACTIVE=true` to `false`.
 
 - **Data**: All workflows and settings are stored in the `n8n_data` volume
 - **Security**: In public environments, always enable authentication
-- **LinkedIn Integration**: Use Railway for reliable scheduled posting (stays running 24/7)
+- **LinkedIn Integration**: 
+  - **Fly.io**: Best for scheduled posts (always running, 100% free)
+  - **Render**: Good option (free, wakes up automatically, may have 30-60s delay)
+  - **Codespaces**: Not recommended (stops when inactive)
 - **Limitations**: 
-  - Railway: Free tier has $5 credit/month
-  - Codespaces: Stops when inactive (not good for scheduled tasks)
+  - **Render**: Sleeps after 15 min inactivity (wakes automatically)
+  - **Fly.io**: 3 shared VMs limit (usually enough for n8n)
+  - **Codespaces**: 60 hours/month, stops when inactive
+  - **Railway**: No longer free after first month
 
 ## 🔗 Useful Links
 
