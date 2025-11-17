@@ -1,0 +1,20 @@
+name: n8n Setup Guide
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  info:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Information
+        run: |
+          echo "## 🚀 n8n Setup" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "To set up n8n:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Use GitHub Codespaces (60 free hours per month)" >> $GITHUB_STEP_SUMMARY
+          echo "2. Or use Railway/Render/Fly.io" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "For more details, read README.md" >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,23 @@
+{
+  "name": "n8n Development",
+  "image": "docker.n8n.io/n8nio/n8n:latest",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "forwardPorts": [5678],
+  "portsAttributes": {
+    "5678": {
+      "label": "n8n",
+      "onAutoForward": "notify"
+    }
+  },
+  "postCreateCommand": "echo 'n8n will be available at http://localhost:5678'",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.vscode-typescript-next"
+      ]
+    }
+  }
+}
+
