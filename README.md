@@ -2,6 +2,44 @@
 
 This repository is designed to run n8n for free on GitHub Codespaces or other free hosting services.
 
+## ⚡ Quick Start - Run Locally with Docker
+
+**The fastest way to run n8n on your local machine:**
+
+```bash
+git clone https://github.com/ali-m07/n8n.git
+cd n8n
+docker-compose up -d
+```
+
+That's it! 🎉 n8n will be running on **http://localhost:13000**
+
+**Default credentials:**
+- Username: `admin`
+- Password: `changeme`
+
+**Useful commands:**
+```bash
+# View logs
+docker-compose logs -f n8n
+
+# Stop n8n
+docker-compose stop
+
+# Start n8n
+docker-compose start
+
+# Restart n8n
+docker-compose restart
+
+# Stop and remove containers
+docker-compose down
+```
+
+**Note:** n8n will automatically start when Docker Desktop starts (thanks to `restart: unless-stopped` policy).
+
+---
+
 ## 🎯 Which Platform Should You Choose?
 
 ### ⭐ BEST OPTION: **n8n Cloud Free Tier** (100% Free - No Hosting Needed!)
