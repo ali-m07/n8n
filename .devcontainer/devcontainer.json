@@ -1,6 +1,6 @@
 {
-  "name": "n8n Development",
-  "image": "docker.n8n.io/n8nio/n8n:latest",
+  "name": "n8n Codespace",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:2": {}
   },
@@ -11,11 +11,12 @@
       "onAutoForward": "notify"
     }
   },
-  "postCreateCommand": "echo 'n8n will be available at http://localhost:5678'",
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  "postStartCommand": "bash .devcontainer/start-n8n.sh",
   "customizations": {
     "vscode": {
       "extensions": [
-        "ms-vscode.vscode-typescript-next"
+        "ms-azuretools.vscode-docker"
       ]
     }
   }
