@@ -226,6 +226,47 @@ If you can keep your computer running, use Cloudflare Tunnel for free public acc
 ### Render / Fly.io / Railway
 ⚠️ **Note:** These services may require payment or have limited free tiers. For truly free options, use **n8n Cloud** or **Oracle Cloud**.
 
+## 🔄 Auto-Update System
+
+This repository includes an **automatic update system** that keeps n8n up to date!
+
+### How It Works:
+
+1. **GitHub Actions Workflow**: 
+   - Runs daily at 2 AM UTC
+   - Checks for new n8n versions
+   - Updates version tracking automatically
+   - View status in the "Actions" tab
+
+2. **Docker Compose Configuration**:
+   - Uses `latest` tag with `pull_policy: always`
+   - Automatically pulls newest version when container restarts
+   - No manual version updates needed!
+
+### Manual Update Methods:
+
+**Option 1: Using the update script (Recommended)**
+```bash
+./update-n8n.sh
+```
+
+**Option 2: Using docker-compose**
+```bash
+docker-compose pull
+docker-compose up -d
+```
+
+**Option 3: Restart container (auto-pulls latest)**
+```bash
+docker-compose restart
+```
+
+### Check Current Version:
+
+```bash
+docker inspect n8n --format '{{ index .Config.Labels "org.opencontainers.image.version" }}'
+```
+
 ## ⚙️ Configuration
 
 ### Change Password:

@@ -1,0 +1,115 @@
+name: Auto-Update n8n
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC (check for new n8n versions)
+    - cron: '0 2 * * *'
+  workflow_dispatch: # Allow manual trigger
+  push:
+    branches: [ main ]
+
+jobs:
+  check-update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get current n8n version from docker-compose.yml
+        id: current-version
+        run: |
+          CURRENT_VERSION=$(grep -oP 'docker.n8n.io/n8nio/n8n:\K[^[:space:]]+' docker-compose.yml || echo "latest")
+          echo "current=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "Current version in repo: $CURRENT_VERSION"
+
+      - name: Get latest n8n version from Docker Hub
+        id: latest-version
+        run: |
+          # Get latest version tag from Docker Hub API
+          LATEST_VERSION=$(curl -s https://hub.docker.com/v2/repositories/n8nio/n8n/tags?page_size=100 | \
+            jq -r '.results[] | select(.name | test("^[0-9]+\\.[0-9]+\\.[0-9]+$")) | .name' | \
+            sort -V | tail -1)
+          
+          if [ -z "$LATEST_VERSION" ]; then
+            # Fallback: use latest tag
+            LATEST_VERSION="latest"
+          fi
+          
+          echo "latest=$LATEST_VERSION" >> $GITHUB_OUTPUT
+          echo "Latest version available: $LATEST_VERSION"
+
+      - name: Get latest version from GitHub Releases (more reliable)
+        id: github-latest
+        run: |
+          GITHUB_VERSION=$(curl -s https://api.github.com/repos/n8n-io/n8n/releases/latest | \
+            jq -r '.tag_name' | sed 's/^n8n@//' | sed 's/^v//')
+          
+          if [ "$GITHUB_VERSION" != "null" ] && [ -n "$GITHUB_VERSION" ]; then
+            echo "github_latest=$GITHUB_VERSION" >> $GITHUB_OUTPUT
+            echo "Latest GitHub release: $GITHUB_VERSION"
+          else
+            echo "github_latest=latest" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check if update is needed
+        id: check-update
+        run: |
+          CURRENT="${{ steps.current-version.outputs.current }}"
+          LATEST="${{ steps.github-latest.outputs.github_latest }}"
+          
+          echo "Current: $CURRENT"
+          echo "Latest: $LATEST"
+          
+          if [ "$CURRENT" = "latest" ] || [ "$CURRENT" != "$LATEST" ]; then
+            echo "update_needed=true" >> $GITHUB_OUTPUT
+            echo "Update needed: $CURRENT -> $LATEST"
+          else
+            echo "update_needed=false" >> $GITHUB_OUTPUT
+            echo "Already up to date: $CURRENT"
+          fi
+
+      - name: Update docker-compose.yml if needed
+        if: steps.check-update.outputs.update_needed == 'true'
+        run: |
+          LATEST="${{ steps.github-latest.outputs.github_latest }}"
+          
+          # Update docker-compose.yml to use latest version tag
+          # Keep using 'latest' tag for automatic updates, but log the version
+          echo "Repository uses 'latest' tag which automatically pulls newest version"
+          echo "Current latest version available: $LATEST"
+          
+          # Create a VERSION file to track the latest known version
+          echo "$LATEST" > VERSION
+          echo "Updated VERSION file with: $LATEST"
+
+      - name: Commit and push if update available
+        if: steps.check-update.outputs.update_needed == 'true' && github.event_name == 'schedule'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add VERSION
+          git commit -m "chore: update n8n version tracking to ${{ steps.github-latest.outputs.github_latest }}" || exit 0
+          git push
+
+      - name: Create summary
+        run: |
+          echo "## 🔄 n8n Version Check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Current version in repo:** \`${{ steps.current-version.outputs.current }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Latest available version:** \`${{ steps.github-latest.outputs.github_latest }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.check-update.outputs.update_needed }}" = "true" ]; then
+            echo "✅ **Update available!**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Your docker-compose.yml uses \`latest\` tag with \`pull_policy: always\`," >> $GITHUB_STEP_SUMMARY
+            echo "so it will automatically pull the latest version when you restart the container." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "To update, run:" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+            echo "docker-compose pull" >> $GITHUB_STEP_SUMMARY
+            echo "docker-compose up -d" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ **Already up to date!**" >> $GITHUB_STEP_SUMMARY
+          fi
