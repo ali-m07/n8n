@@ -223,7 +223,7 @@ If you can keep your computer running, use Cloudflare Tunnel for free public acc
 
 ## 📝 Other Options (May Require Payment)
 
-### Render / Fly.io / Railway
+### Render / Fly.io
 ⚠️ **Note:** These services may require payment or have limited free tiers. For truly free options, use **n8n Cloud** or **Oracle Cloud**.
 
 ## 🔄 Auto-Update System

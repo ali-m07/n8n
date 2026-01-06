@@ -27,14 +27,6 @@ git push -u origin main
 3. Click the **"Open in Browser"** icon
 4. n8n is ready to use! 🎉
 
-## 🔄 Alternative Method: Railway (Free)
-
-1. Go to [railway.app](https://railway.app) and sign up
-2. "New Project" → "Deploy from GitHub repo"
-3. Select your repository
-4. Railway will automatically set up n8n
-
 ## 💡 Important Note
 - Codespaces: 60 free hours per month
-- Railway: Has free limitations but is always available
 - All your data is stored in volumes
