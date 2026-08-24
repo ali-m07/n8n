@@ -12,7 +12,16 @@ fi
 # Create n8n data directory
 mkdir -p ~/.n8n
 
-# Run n8n
+# Always refresh to latest image before starting
+if docker ps -a --format '{{.Names}}' | grep -qx n8n; then
+  echo "🧹 Removing existing n8n container..."
+  docker rm -f n8n >/dev/null 2>&1 || true
+fi
+
+echo "📥 Pulling latest n8n image..."
+docker pull docker.n8n.io/n8nio/n8n:latest
+
+# Run n8n with latest image
 echo "📦 Starting n8n container..."
 docker run -d \
   --name n8n \

@@ -3,28 +3,33 @@
 # Start n8n script for GitHub Codespaces
 echo "🚀 Starting n8n..."
 
-# Check if n8n container is already running
-if docker ps | grep -q n8n; then
-    echo "✅ n8n is already running!"
-    exit 0
+# Detect docker compose command (new and legacy)
+if docker compose version >/dev/null 2>&1; then
+    COMPOSE_CMD="docker compose"
+elif command -v docker-compose >/dev/null 2>&1; then
+    COMPOSE_CMD="docker-compose"
+else
+    COMPOSE_CMD=""
 fi
 
-# Check if n8n container exists but is stopped
-if docker ps -a | grep -q n8n; then
-    echo "🔄 Starting existing n8n container..."
-    docker start n8n
-    echo "✅ n8n started!"
-    exit 0
-fi
+echo "🔄 Ensuring latest n8n image is used..."
 
 # Create n8n data directory if it doesn't exist
 mkdir -p ~/.n8n
 
 # Start n8n using docker-compose if available, otherwise use docker run
-if command -v docker-compose &> /dev/null && [ -f docker-compose.yml ]; then
-    echo "📦 Starting n8n with docker-compose..."
-    docker-compose up -d
+if [ -n "$COMPOSE_CMD" ] && [ -f docker-compose.yml ]; then
+    echo "📥 Pulling latest image with compose..."
+    $COMPOSE_CMD pull n8n
+    echo "📦 Recreating n8n container with latest image..."
+    $COMPOSE_CMD up -d --force-recreate n8n
 else
+    if docker ps -a --format '{{.Names}}' | grep -qx n8n; then
+        echo "🧹 Removing existing n8n container..."
+        docker rm -f n8n >/dev/null 2>&1 || true
+    fi
+    echo "📥 Pulling latest n8n image..."
+    docker pull docker.n8n.io/n8nio/n8n:latest
     echo "📦 Starting n8n container..."
     docker run -d \
       --name n8n \
